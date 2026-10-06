@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexVOLT — Optimize. Boost. Play.</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap');
+:root{
+  --bg:#000000;
+  --surface:#0E0E0E; --surface2:#141414; --surface3:#1B1B1B;
+  --border:#242424; --border2:#333333; --text:#FFFFFF; --muted:#B4B4BC; --faint:#8A8A93;
+  --violet:#7C5CFC; --cyan:#35D7E8; --grad: linear-gradient(90deg,#7C5CFC,#35D7E8); --accent-soft: rgba(124,92,252,.16);
+  --gold:#F4C752; --gold-soft:rgba(244,199,82,.14); --gold-grad:linear-gradient(90deg,#F4C752,#F28D35);
+  --good:#34D399; --good-soft:rgba(52,211,153,.16);
+  --warn:#F2B341; --warn-soft:rgba(242,179,65,.16);
+  --bad:#F0565F; --bad-soft:rgba(240,86,95,.16);
+  --radius:12px; --radius-sm:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:'Inter',-apple-system,"Segoe UI",sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;margin:0 0 .4em;font-weight:700;letter-spacing:-.01em;color:#FFFFFF}
+p{margin:0 0 .6em}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.volt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.goldtext{background:var(--gold-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+#login-screen{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:500;padding:1rem}
+.login-box{width:min(390px,92vw);background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:2rem 1.8rem;text-align:center}
+.login-brand{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:.3rem}
+.login-box h2{font-size:1.3rem}
+.login-box p.muted{font-size:.85rem}
+.login-field{text-align:left;margin-bottom:.9rem}
+.login-field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:.35rem}
+.login-field input{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);
+  padding:.65rem .8rem;color:#fff}
+.login-full-btn{width:100%;padding:.75rem;margin-top:.3rem}
+.login-tabs{display:flex;gap:.4rem;background:var(--surface3);border:1px solid var(--border2);border-radius:999px;padding:.25rem;margin-bottom:1.1rem}
+.login-tab{flex:1;border:none;background:transparent;color:var(--muted);padding:.5rem 0;border-radius:999px;cursor:pointer;font-weight:600;font-size:.84rem}
+.login-tab.active{background:var(--grad);color:#060810}
+.login-err{color:var(--bad);font-size:.8rem;margin-top:-.4rem;margin-bottom:.7rem;text-align:left;min-height:1em}
+.login-link{background:none;border:none;color:var(--cyan);font-size:.82rem;cursor:pointer;padding:.3rem 0;text-decoration:underline}
+.login-view{display:none}
+.login-view.active{display:block}
+.sim-email-box{background:var(--surface3);border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:.9rem;margin:.8rem 0;text-align:left;font-size:.82rem;color:var(--muted)}
+.sim-email-box .sim-code{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--gold);letter-spacing:.15em;margin:.4rem 0}
+
+#app{display:flex;min-height:100vh}
+.sidebar{width:236px;flex-shrink:0;background:var(--surface);
+  border-right:1px solid var(--border);padding:1.1rem .85rem;display:flex;flex-direction:column;gap:1rem}
+.brand{display:flex;gap:.6rem;align-items:center;padding:.3rem .3rem 1rem;border-bottom:1px solid var(--border)}
+.brand b{font-size:1.02rem;letter-spacing:.01em;color:#fff}
+.brand-mark{display:flex;filter:drop-shadow(0 0 10px rgba(124,92,252,.45))}
+.nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;flex:1}
+.nav button{all:unset;display:flex;gap:.65rem;align-items:center;padding:.6rem .65rem;border-radius:var(--radius-sm);
+  color:var(--muted);cursor:pointer;font-size:.89rem;width:100%;transition:.15s}
+.nav button:hover{background:var(--surface3);color:#fff}
+.nav button.active{background:var(--accent-soft);color:#fff;box-shadow:inset 2px 0 0 var(--violet)}
+.nav button.premium-link{color:var(--gold)}
+.sidebar-foot{display:flex;justify-content:space-between;align-items:center;gap:.4rem;padding:.3rem}
+.mini-avatar{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--muted);overflow:hidden}
+.avatar-circle{width:24px;height:24px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;
+  font-family:'Sora',sans-serif;font-weight:700;font-size:.7rem;color:#060810;flex-shrink:0}
+.plan-pill{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.2em .5em;border-radius:999px;border:1px solid var(--border2);flex-shrink:0}
+.plan-pill.free{color:var(--muted)}
+.plan-pill.premium{color:#0A0700;background:var(--gold-grad);border:none;font-weight:700}
+.right{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.7rem;border-bottom:1px solid var(--border);background:#000}
+.topbar h1{font-size:1.15rem;margin:0;color:#fff}
+.topbar p{margin:0;color:var(--faint);font-size:.8rem}
+.topbar-right{display:flex;align-items:center;gap:.7rem}
+main{flex:1;padding:1.5rem 1.8rem 3rem;overflow-y:auto}
+.page{display:none;flex-direction:column;gap:1.2rem;max-width:1180px}
+.page.active{display:flex}
+.page-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.3rem}
+.muted{color:var(--muted)}
+.fineprint{color:var(--faint);font-size:.78rem;margin-top:.5rem}
+.btn{border:1px solid var(--border2);background:var(--surface3);color:#fff;padding:.6rem 1rem;
+  border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:.87rem;transition:.15s}
+.btn:hover{border-color:var(--cyan);color:#fff}
+.btn-primary{background:var(--grad);border:none;color:#060810;box-shadow:0 4px 16px rgba(124,92,252,.35)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-gold{background:var(--gold-grad);border:none;color:#1A1200;font-weight:700;box-shadow:0 4px 16px rgba(244,199,82,.3)}
+.btn-gold:hover{filter:brightness(1.08)}
+.btn-danger{background:transparent;border:1px solid rgba(240,86,95,.5);color:var(--bad)}
+.btn-danger:hover{background:var(--bad-soft)}
+.actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem}
+.action-btn{background:var(--surface2);border:1px solid var(--border);padding:1rem;border-radius:var(--radius);
+  text-align:left;font-weight:700;cursor:pointer;color:#fff;transition:.15s}
+.action-btn:hover{border-color:var(--violet);transform:translateY(-2px)}
+.action-btn.gold-outline{border-color:rgba(244,199,82,.4)}
+.action-btn.gold-outline:hover{border-color:var(--gold)}
+.donut-wrap{display:flex;align-items:center;gap:1.6rem;flex-wrap:wrap}
+.donut-num{font-family:'JetBrains Mono',monospace;font-size:1.9rem;font-weight:700;fill:#fff}
+.donut-sub{font-family:'Inter',sans-serif;font-size:.62rem;fill:var(--faint)}
+.usage-item{margin-bottom:1rem}
+.usage-item:last-child{margin-bottom:0}
+.usage-top{display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:.4rem;color:#fff}
+.usage-top .pct{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+.progress{height:9px;background:var(--surface3);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;border-radius:999px;background:var(--grad);width:0%;transition:width .8s ease}
+.progress-fill.warn{background:linear-gradient(90deg,#F2B341,#F0565F)}
+.progress-fill.good{background:linear-gradient(90deg,#34D399,#35D7E8)}
+.bar-chart{display:flex;align-items:flex-end;gap:1.1rem;height:170px;padding:1.4rem .6rem 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar-col .bar{width:100%;max-width:48px;border-radius:7px 7px 2px 2px;background:var(--grad);height:4%;transition:height .8s ease}
+.bar-col .bar.warn{background:linear-gradient(180deg,#F0565F,#F2B341)}
+.bar-col .bar-val{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#fff;margin-bottom:.35rem}
+.bar-col .bar-label{font-size:.72rem;color:var(--muted);margin-top:.55rem;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.85rem}
+.info-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.05rem}
+.info-card dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem .8rem;margin:.6rem 0 0}
+.info-card dt{color:var(--faint);font-size:.8rem}
+.info-card dd{margin:0;font-family:'JetBrains Mono',monospace;font-size:.84rem;text-align:right;color:#fff}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:.85rem}
+.game-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;
+  display:flex;flex-direction:column;gap:.55rem;transition:.15s;position:relative}
+.game-card.sel{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet) inset}
+.game-card.locked{opacity:.6}
+.game-head{display:flex;align-items:center;gap:.6rem}
+.game-head strong{color:#fff}
+.game-logo{width:34px;height:34px;border-radius:8px;object-fit:cover;background:var(--surface3);flex-shrink:0}
+.game-logo-fallback{width:34px;height:34px;border-radius:8px;background:var(--grad);display:flex;align-items:center;
+  justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:.8rem;color:#060810;flex-shrink:0}
+.badge{display:inline-block;font-size:.7rem;font-family:'JetBrains Mono',monospace;padding:.18em .6em;border-radius:999px;
+  background:var(--surface3);color:var(--muted);border:1px solid var(--border2)}
+.badge-good{background:var(--good-soft);color:var(--good);border-color:rgba(52,211,153,.3)}
+.badge-warn{background:var(--warn-soft);color:var(--warn);border-color:rgba(242,179,65,.3)}
+.badge-gold{background:var(--gold-soft);color:var(--gold);border-color:rgba(244,199,82,.35)}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.75rem}
+.mode-card{text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.85rem;cursor:pointer;transition:.15s;color:#fff;position:relative}
+.mode-card p{color:var(--muted);font-size:.8rem;margin:.3rem 0 0}
+.mode-card.sel{border-color:var(--cyan);background:var(--accent-soft)}
+.mode-card.locked{border-color:rgba(244,199,82,.35)}
+.crown{display:inline-flex;vertical-align:-2px;margin-right:.3em}
+.opt-row{display:flex;justify-content:space-between;gap:.8rem;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.opt-row:last-child{border-bottom:none}
+.opt-row strong{color:#fff}
+.opt-meta{display:flex;gap:.4rem;margin-top:.4rem}
+.opt-state{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--muted);white-space:nowrap;font-weight:600}
+.empty,.loading,.err{padding:1.1rem;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:var(--radius)}
+.err{color:var(--bad);border-color:rgba(240,86,95,.3)}
+.stage-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.3rem}
+.stage{display:flex;gap:.6rem;padding:.45rem .65rem;border-radius:var(--radius-sm);color:var(--muted);font-size:.85rem}
+.stage.run{color:var(--cyan);background:var(--accent-soft)} .stage.done{color:var(--good)}
+.toggle-row{display:flex;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row strong{color:#fff}
+.log-row{display:grid;grid-template-columns:140px 90px 1fr;gap:.8rem;padding:.55rem .75rem;background:var(--surface3);
+  border-radius:var(--radius-sm);font-size:.82rem;align-items:center;margin-bottom:.32rem;border:1px solid var(--border);color:#fff}
+.log-row.failed .r{color:var(--bad)} .log-row.successful .r{color:var(--good)} .log-row.restored .r{color:var(--cyan)}
+.time{color:var(--faint);font-family:'JetBrains Mono',monospace}
+.toasts{position:fixed;bottom:1.2rem;right:1.2rem;display:flex;flex-direction:column;gap:.5rem;z-index:100}
+.toast{background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:.75rem 1.05rem;
+  min-width:235px;opacity:0;transform:translateY(8px);transition:.18s;font-size:.85rem;box-shadow:0 10px 30px rgba(0,0,0,.6);color:#fff}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-left:3px solid var(--good)} .toast.warn{border-left:3px solid var(--warn)}
+.toast.err{border-left:3px solid var(--bad)} .toast.info{border-left:3px solid var(--cyan)} .toast.gold{border-left:3px solid var(--gold)}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.plan-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;display:flex;flex-direction:column;gap:.9rem}
+.plan-card.featured{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset,0 8px 30px rgba(244,199,82,.12)}
+.plan-name{display:flex;justify-content:space-between;align-items:center}
+.plan-price{font-family:'JetBrains Mono',monospace}
+.plan-price b{font-size:2.3rem;color:#fff}
+.plan-price span{color:var(--faint);font-size:.85rem}
+.plan-features{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55rem;font-size:.86rem}
+.plan-features li{display:flex;gap:.55rem;align-items:flex-start;color:var(--muted)}
+.check{color:var(--good);flex-shrink:0}
+.checkx{color:var(--faint);flex-shrink:0}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.modal{width:min(420px,94vw);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:1.4rem}
+.modal-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1.1rem}
+.account-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.account-avatar{width:56px;height:56px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;
+  font-family:'Sora',sans-serif;font-weight:800;font-size:1.3rem;color:#060810;flex-shrink:0}
+.field-row{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:.8rem}
+.field-row>div{flex:1;min-width:180px}
+.field-row label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:.35rem}
+.field-row input,.field-row select{width:100%;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);
+  padding:.6rem .75rem;color:#fff}
+.preset-row{display:flex;justify-content:space-between;align-items:center;gap:.8rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.preset-row:last-child{border-bottom:none}
+.preset-row strong{color:#fff;font-size:.9rem}
+.preset-actions{display:flex;gap:.4rem}
+.preset-actions .btn{padding:.4rem .7rem;font-size:.78rem}
+@media(max-width:860px){#app{flex-direction:column}.sidebar{width:100%;flex-direction:row;overflow-x:auto}
+  .brand,.sidebar-foot{display:none}main{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <svg viewBox="0 0 48 48" width="28" height="28" aria-hidden="true">
+        <defs><linearGradient id="voltGradL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#35D7E8"/>
+        </linearGradient></defs>
+        <polygon points="27,2 8,26 21,26 18,46 42,20 27,20" fill="url(#voltGradL)"/>
+      </svg>
+      <b style="font-family:'Sora',sans-serif;font-size:1.15rem">Nex<span class="volt">VOLT</span></b>
+    </div>
+
+    <!-- LOGIN / REGISTER tabs -->
+    <div id="auth-tabs" class="login-tabs">
+      <button type="button" class="login-tab active" id="tab-login">Log In</button>
+      <button type="button" class="login-tab" id="tab-signup">Register</button>
+    </div>
+
+    <!-- LOG IN view -->
+    <div class="login-view active" id="view-login">
+      <form id="login-form">
+        <div class="login-field"><label>Username</label><input type="text" id="login-user" autocomplete="username"></div>
+        <div class="login-field"><label>Password</label><input type="password" id="login-pass" autocomplete="current-password"></div>
+        <div class="login-err" id="login-err"></div>
+        <button class="btn btn-primary login-full-btn" type="submit">Log In</button>
+      </form>
+      <button type="button" class="login-link" id="link-forgot">Forgot password?</button>
+    </div>
+
+    <!-- REGISTER view -->
+    <div class="login-view" id="view-signup">
+      <form id="signup-form">
+        <div class="login-field"><label>Display name</label><input type="text" id="su-name"></div>
+        <div class="login-field"><label>Username</label><input type="text" id="su-user" autocomplete="username"></div>
+        <div class="login-field"><label>Email</label><input type="email" id="su-email" autocomplete="email"></div>
+        <div class="login-field"><label>Password</label><input type="password" id="su-pass" autocomplete="new-password"></div>
+        <div class="login-field"><label>Confirm password</label><input type="password" id="su-pass2" autocomplete="new-password"></div>
+        <div class="login-err" id="signup-err"></div>
+        <button class="btn btn-primary login-full-btn" type="submit">Create Account</button>
+      </form>
+    </div>
+
+    <!-- FORGOT PASSWORD — step 1: request code -->
+    <div class="login-view" id="view-forgot-request">
+      <p class="muted">Enter the username or email on your account. We'll generate a reset code.</p>
+      <form id="forgot-request-form">
+        <div class="login-field"><label>Username or email</label><input type="text" id="fr-identifier"></div>
+        <div class="login-err" id="forgot-request-err"></div>
+        <button class="btn btn-primary login-full-btn" type="submit">Send Reset Code</button>
+      </form>
+      <button type="button" class="login-link" id="link-back-to-login-1">Back to Log In</button>
+    </div>
+
+    <!-- FORGOT PASSWORD — step 2: enter code + new password -->
+    <div class="login-view" id="view-forgot-reset">
+      <div class="sim-email-box" id="sim-email-box"></div>
+      <form id="forgot-reset-form">
+        <div class="login-field"><label>Reset code</label><input type="text" id="fr-code" maxlength="6" placeholder="6-digit code"></div>
+        <div class="login-field"><label>New password</label><input type="password" id="fr-newpass" autocomplete="new-password"></div>
+        <div class="login-field"><label>Confirm new password</label><input type="password" id="fr-newpass2" autocomplete="new-password"></div>
+        <div class="login-err" id="forgot-reset-err"></div>
+        <button class="btn btn-primary login-full-btn" type="submit">Reset Password</button>
+      </form>
+      <button type="button" class="login-link" id="link-back-to-login-2">Back to Log In</button>
+    </div>
+
+    <p class="fineprint" style="margin-top:1rem">Standalone file, no server: accounts are stored only in this browser's local storage on this device.</p>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <nav class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true">
+          <defs><linearGradient id="voltGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#35D7E8"/>
+          </linearGradient></defs>
+          <polygon points="27,2 8,26 21,26 18,46 42,20 27,20" fill="url(#voltGrad)"/>
+        </svg>
+      </span>
+      <b>Nex<span class="volt">VOLT</span></b>
+    </div>
+    <ul class="nav" id="nav"></ul>
+    <div class="sidebar-foot">
+      <span class="mini-avatar"><span class="avatar-circle" id="mini-avatar-letter">?</span><span id="mini-avatar-name"></span></span>
+      <span class="plan-pill free" id="plan-pill">FREE</span>
+    </div>
+  </nav>
+  <div class="right">
+    <div class="topbar">
+      <div><h1>Nex<span class="volt">VOLT</span></h1><p>Optimize. Boost. Play.</p></div>
+      <div class="topbar-right">
+        <button class="btn btn-gold" id="topbar-upgrade" onclick="go('premium')">Upgrade to Premium</button>
+      </div>
+    </div>
+    <main id="main"></main>
+  </div>
+</div>
+<div class="toasts" id="toasts"></div>
+<div id="modal-root"></div>
+
+<script>
+"use strict";
+
+/* ========================================================================
+   PERSISTENCE
+   ======================================================================== */
+var SESSION_KEY='nexvolt_session';
+var USERS_KEY='nexvolt_users';
+
+function loadUsers(){ try{ var r=localStorage.getItem(USERS_KEY); return r?JSON.parse(r):{}; }catch(e){ return {}; } }
+function saveUsers(users){ try{ localStorage.setItem(USERS_KEY, JSON.stringify(users)); }catch(e){} }
+function loadSession(){ try{ var r=localStorage.getItem(SESSION_KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function saveSession(){
+  try{
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      username: state.user ? state.user.username : null,
+      isPremium: state.isPremium, settings: state.settings, presets: state.presets
+    }));
+    if(state.user){
+      var users=loadUsers();
+      users[state.user.username]=Object.assign({}, users[state.user.username], {
+        name:state.user.name, email:state.user.email, memberSince:state.user.memberSince
+      });
+      saveUsers(users);
+    }
+  }catch(e){}
+}
+function findUserByIdentifier(identifier){
+  var users=loadUsers();
+  if(users[identifier]) return identifier;
+  for(var uname in users){ if(users[uname].email && users[uname].email.toLowerCase()===identifier.toLowerCase()) return uname; }
+  return null;
+}
+
+var state = {
+  route:'dashboard', selectedGame:null, mode:'balanced', logs:[], backups:[],
+  isPremium:false, user:null, presets:[],
+  settings:{ telemetry:false, confirmBeforeApply:true }
+};
+
+/* ========================================================================
+   DATA (unchanged)
+   ======================================================================== */
+var HARDWARE = {
+  cpu:{name:'Simulated CPU — Ryzen 7 7800X3D', cores:8, threads:16, usagePct:34},
+  gpu:{name:'Simulated GPU — GeForce RTX 4070', vramGB:12, vramUsedGB:4.6, usagePct:51},
+  ram:{totalGB:32, usedGB:14},
+  storage:[{drive:'C:',type:'NVMe SSD (sim)',freeGB:180,totalGB:512},{drive:'D:',type:'SATA SSD (sim)',freeGB:340,totalGB:1024}],
+  os:{version:'Windows 11',build:'26100.1000 (sim)'},
+  win:{gameMode:true,hags:false,powerPlan:'Balanced'}
+};
+var GAMES = [
+  {id:'gta5',name:'Grand Theft Auto V',exe:'GTA5.exe'},{id:'fivem',name:'FiveM',exe:'FiveM.exe'},
+  {id:'valorant',name:'VALORANT',exe:'VALORANT-Win64-Shipping.exe'},{id:'cs2',name:'Counter-Strike 2',exe:'cs2.exe'},
+  {id:'fortnite',name:'Fortnite',exe:'FortniteClient-Win64-Shipping.exe'},
+  {id:'apex',name:'Apex Legends',exe:'r5apex.exe'},{id:'pubg',name:'PUBG: BATTLEGROUNDS',exe:'TslGame.exe'},
+  {id:'cod',name:'Call of Duty',exe:'cod.exe'},{id:'minecraft',name:'Minecraft',exe:'javaw.exe'},
+  {id:'rdr2',name:'Red Dead Redemption 2',exe:'RDR2.exe'},{id:'cyberpunk',name:'Cyberpunk 2077',exe:'Cyberpunk2077.exe'},
+  {id:'forza',name:'Forza Horizon',exe:'ForzaHorizon5.exe'},{id:'r6siege',name:'Rainbow Six Siege',exe:'RainbowSix.exe'}
+];
+var FREE_GAME_LIMIT = 5;
+var PC_CATALOG = [
+  {id:'power-plan',name:'Power Plan: High Performance',cat:'power',risk:'low',admin:true,modes:['safe','balanced','performance']},
+  {id:'game-mode',name:'Enable Windows Game Mode',cat:'windows',risk:'low',admin:false,modes:['safe','balanced','performance']},
+  {id:'hags',name:'Hardware-Accelerated GPU Scheduling',cat:'gpu',risk:'medium',admin:true,modes:['balanced','performance']},
+  {id:'fullscreen-opt',name:'Fullscreen Optimization Review',cat:'windows',risk:'low',admin:false,modes:['safe','balanced','performance']},
+  {id:'startup-apps',name:'Startup Application Review',cat:'background',risk:'low',admin:false,modes:['safe','balanced','performance']},
+  {id:'temp-cleanup',name:'Temporary File Cleanup',cat:'storage',risk:'low',admin:false,modes:['balanced','performance']},
+  {id:'visual-fx',name:'Windows Visual Effects → Performance',cat:'windows',risk:'low',admin:false,modes:['performance']},
+  {id:'net-throttle',name:'Network Throttling Index Review',cat:'network',risk:'medium',admin:true,modes:['performance']}
+];
+function gameExtraOpt(g){ return {id:g.id+'-priority',name:g.name+' Process Priority',cat:'cpu',risk:'medium',admin:true,modes:['balanced','performance']}; }
+var PLANS = {
+  free:{ name:'Free', price:0, features:[
+    ['Safe & Balanced optimization modes',true],['Up to 5 game profiles',true],['PC scan & Readiness Score',true],
+    ['Live usage bars',true],['Restore last optimization only',true],['Activity log (last 20)',true],
+    ['Performance & Custom modes',false],['Full 13-game library',false],['Unlimited restore history',false],['Resource comparison chart',false]
+  ]},
+  premium:{ name:'Premium', price:25, features:[
+    ['Everything in Free',true],['Performance & Custom modes',true],['Full 13-game library',true],
+    ['Resource comparison chart',true],['Unlimited restore history',true],['Unlimited activity log',true],
+    ['Early access to new profiles',true],['Priority support badge',true]
+  ]}
+};
+
+/* ========================================================================
+   DOM HELPERS
+   ======================================================================== */
+function el(tag,attrs,children){
+  var e=document.createElement(tag); attrs=attrs||{};
+  for(var k in attrs){
+    if(k==='class')e.className=attrs[k];
+    else if(k==='html')e.innerHTML=attrs[k];
+    else if(k.indexOf('on')===0 && typeof attrs[k]==='function') e.addEventListener(k.slice(2),attrs[k]);
+    else e.setAttribute(k,attrs[k]);
+  }
+  (children||[]).forEach(function(c){ if(c==null)return; e.appendChild(typeof c==='string'?document.createTextNode(c):c); });
+  return e;
+}
+function clear(node){ node.innerHTML=''; }
+function fmtTime(){ return new Date().toLocaleTimeString(); }
+function toast(type,msg){
+  var box=document.getElementById('toasts');
+  var t=el('div',{class:'toast '+type},[msg]);
+  box.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('show'); });
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){t.remove();},250); },4200);
+}
+function log(result,message){
+  state.logs.unshift({time:fmtTime(),result:result,message:message});
+  var p=document.getElementById('page-logs');
+  if(p && p.classList.contains('active')) renderLogs();
+}
+function gameLogo(g){
+  var img = el('img',{class:'game-logo',src:'logos/'+g.id+'.png',alt:g.name+' logo'});
+  var fallback = el('div',{class:'game-logo-fallback'},[g.name.slice(0,2).toUpperCase()]);
+  fallback.style.display='none';
+  img.onerror = function(){ img.style.display='none'; fallback.style.display='flex'; };
+  return el('span',{style:'display:contents'},[img,fallback]);
+}
+function crownIcon(){
+  var s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  s.setAttribute('viewBox','0 0 24 24'); s.setAttribute('width','14'); s.setAttribute('height','14'); s.setAttribute('class','crown');
+  s.innerHTML='<path d="M3 18h18l-1.5-9-4.5 3-3-6-3 6-4.5-3L3 18z" fill="#F4C752"/>';
+  return s;
+}
+function initialsOf(name){
+  if(!name) return '?';
+  var parts=name.trim().split(/\s+/);
+  return (parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+}
+
+/* ========================================================================
+   AUTH: view switching
+   ======================================================================== */
+function showAuthView(name){
+  document.querySelectorAll('.login-view').forEach(function(v){ v.classList.remove('active'); });
+  document.getElementById('view-'+name).classList.add('active');
+  var onTabScreen = (name==='login' || name==='signup');
+  document.getElementById('auth-tabs').style.display = onTabScreen ? 'flex' : 'none';
+  if(onTabScreen){
+    document.getElementById('tab-login').classList.toggle('active', name==='login');
+    document.getElementById('tab-signup').classList.toggle('active', name==='signup');
+  }
+}
+document.getElementById('tab-login').addEventListener('click',function(){ showAuthView('login'); });
+document.getElementById('tab-signup').addEventListener('click',function(){ showAuthView('signup'); });
+document.getElementById('link-forgot').addEventListener('click',function(){ showAuthView('forgot-request'); });
+document.getElementById('link-back-to-login-1').addEventListener('click',function(){ showAuthView('login'); });
+document.getElementById('link-back-to-login-2').addEventListener('click',function(){ showAuthView('login'); });
+
+/* ========================================================================
+   AUTH: register / log in
+   ======================================================================== */
+function enterApp(username){
+  var users=loadUsers();
+  var rec=users[username];
+  state.user = { username:username, name:rec.name, email:rec.email, memberSince:rec.memberSince };
+  saveSession();
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  syncAccountUI();
+  toast('success','Welcome, '+rec.name+'.');
+}
+document.getElementById('login-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var u=document.getElementById('login-user').value.trim();
+  var p=document.getElementById('login-pass').value;
+  var errEl=document.getElementById('login-err');
+  errEl.textContent='';
+  var users=loadUsers();
+  if(!u || !p){ errEl.textContent='Enter both username and password.'; return; }
+  if(!users[u]){ errEl.textContent='No account found with that username. Try Register.'; return; }
+  if(users[u].password!==p){ errEl.textContent='Incorrect password.'; return; }
+  enterApp(u);
+});
+document.getElementById('signup-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var name=document.getElementById('su-name').value.trim();
+  var u=document.getElementById('su-user').value.trim();
+  var email=document.getElementById('su-email').value.trim();
+  var p=document.getElementById('su-pass').value;
+  var p2=document.getElementById('su-pass2').value;
+  var errEl=document.getElementById('signup-err');
+  errEl.textContent='';
+  if(!name||!u||!email||!p){ errEl.textContent='Fill in every field.'; return; }
+  if(!/^\S+@\S+\.\S+$/.test(email)){ errEl.textContent='Enter a valid email address.'; return; }
+  if(p.length<6){ errEl.textContent='Password must be at least 6 characters.'; return; }
+  if(p!==p2){ errEl.textContent='Passwords do not match.'; return; }
+  var users=loadUsers();
+  if(users[u]){ errEl.textContent='That username is already taken.'; return; }
+  if(findUserByIdentifier(email)){ errEl.textContent='An account already uses that email.'; return; }
+  users[u]={ name:name, email:email, password:p, memberSince:new Date().toLocaleString('default',{month:'short',year:'numeric'}) };
+  saveUsers(users);
+  toast('success','Account created.');
+  enterApp(u);
+});
+
+/* ========================================================================
+   AUTH: forgot password (simulated email delivery)
+   ======================================================================== */
+var pendingReset = null; /* { username, code, expiresAt } */
+
+document.getElementById('forgot-request-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var id=document.getElementById('fr-identifier').value.trim();
+  var errEl=document.getElementById('forgot-request-err');
+  errEl.textContent='';
+  if(!id){ errEl.textContent='Enter your username or email.'; return; }
+  var username=findUserByIdentifier(id);
+  if(!username){ errEl.textContent='No account matches that username or email.'; return; }
+  var users=loadUsers();
+  var code=String(Math.floor(100000+Math.random()*900000));
+  pendingReset={ username:username, code:code, expiresAt:Date.now()+15*60*1000 };
+
+  /* SIMULATED EMAIL — see note below the code for what real delivery needs. */
+  var box=document.getElementById('sim-email-box');
+  box.innerHTML='';
+  box.appendChild(el('div',{},[
+    el('p',{},[el('b',{},['Simulated email']),' to ', el('b',{},[users[username].email]),':']),
+    el('p',{class:'muted'},['"Your NexVOLT password reset code is:"']),
+    el('div',{class:'sim-code'},[code]),
+    el('p',{class:'fineprint'},['This file has no backend, so no real email was sent — this code is shown here directly instead. It expires in 15 minutes.'])
+  ]));
+  document.getElementById('fr-code').value='';
+  document.getElementById('fr-newpass').value='';
+  document.getElementById('fr-newpass2').value='';
+  showAuthView('forgot-reset');
+});
+
+document.getElementById('forgot-reset-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var code=document.getElementById('fr-code').value.trim();
+  var np=document.getElementById('fr-newpass').value;
+  var np2=document.getElementById('fr-newpass2').value;
+  var errEl=document.getElementById('forgot-reset-err');
+  errEl.textContent='';
+  if(!pendingReset){ errEl.textContent='Request a new code first.'; showAuthView('forgot-request'); return; }
+  if(Date.now()>pendingReset.expiresAt){ errEl.textContent='Code expired. Request a new one.'; pendingReset=null; return; }
+  if(code!==pendingReset.code){ errEl.textContent='Incorrect code.'; return; }
+  if(np.length<6){ errEl.textContent='New password must be at least 6 characters.'; return; }
+  if(np!==np2){ errEl.textContent='Passwords do not match.'; return; }
+  var users=loadUsers();
+  users[pendingReset.username].password=np;
+  saveUsers(users);
+  toast('success','Password reset. Please log in.');
+  pendingReset=null;
+  document.getElementById('login-user').value=users[pendingReset ? pendingReset.username : ''] ? '' : '';
+  showAuthView('login');
+});
+
+function doLogout(){
+  state.user=null;
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  showAuthView('login');
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  toast('info','Logged out.');
+}
+function syncAccountUI(){
+  if(!state.user) return;
+  document.getElementById('mini-avatar-letter').textContent = initialsOf(state.user.name);
+  document.getElementById('mini-avatar-name').textContent = state.user.name.split(' ')[0];
+}
+
+/* ========================================================================
+   GRAPHICS HELPERS
+   ======================================================================== */
+function tone(pct){ return pct>=75?'good':pct>=45?'':'warn'; }
+function progressBar(label, pct, suffix){
+  pct = Math.max(0, Math.min(100, pct));
+  var item = el('div',{class:'usage-item'},[
+    el('div',{class:'usage-top'},[ el('span',{},[label]), el('span',{class:'pct'},[(suffix||pct+'%')]) ]),
+    el('div',{class:'progress'},[ el('div',{class:'progress-fill '+tone(pct)}) ])
+  ]);
+  setTimeout(function(){ item.querySelector('.progress-fill').style.width = pct+'%'; }, 30);
+  return item;
+}
+function donut(score){
+  var r=46, c=2*Math.PI*r, tn = score>=75?'#34D399':score>=45?'#35D7E8':'#F0565F';
+  var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 120 120'); svg.setAttribute('width','120'); svg.setAttribute('height','120');
+  svg.innerHTML =
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#1B1B1B" stroke-width="12"/>' +
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+tn+'" stroke-width="12" stroke-linecap="round" ' +
+      'stroke-dasharray="'+c+'" stroke-dashoffset="'+c+'" transform="rotate(-90 60 60)">' +
+      '<animate attributeName="stroke-dashoffset" from="'+c+'" to="'+(c-(c*score/100))+'" dur=".9s" fill="freeze"/>' +
+    '</circle>' +
+    '<text x="60" y="56" text-anchor="middle" class="donut-num">'+score+'</text>' +
+    '<text x="60" y="74" text-anchor="middle" class="donut-sub">OUT OF 100</text>';
+  return svg;
+}
+function barChart(items){
+  var wrap = el('div',{class:'bar-chart'});
+  items.forEach(function(it){
+    var col = el('div',{class:'bar-col'},[
+      el('span',{class:'bar-val'},[it.val+'%']),
+      el('div',{class:'bar'+(it.val>=75?' warn':'')}),
+      el('span',{class:'bar-label'},[it.label])
+    ]);
+    wrap.appendChild(col);
+    setTimeout((function(c,v){ return function(){ c.querySelector('.bar').style.height = Math.max(4,v)+'%'; }; })(col,it.val), 30);
+  });
+  return wrap;
+}
+function showUpgradeModal(reason){
+  var root=document.getElementById('modal-root');
+  clear(root);
+  var overlay=el('div',{class:'modal-overlay',onclick:function(e){ if(e.target===overlay) root.innerHTML=''; }});
+  var m=el('div',{class:'modal'},[
+    el('h3',{},[crownIcon(),' Premium Feature']),
+    el('p',{class:'muted'},[reason||'This feature is part of NexVOLT Premium.']),
+    el('p',{},[el('b',{},['$25']),el('span',{class:'muted'},[' / month']) ]),
+    el('p',{class:'fineprint'},['Demo checkout only — this standalone file has no backend, so no real payment is processed.']),
+    el('div',{class:'modal-actions'},[
+      el('button',{class:'btn',onclick:function(){ root.innerHTML=''; }},['Cancel']),
+      el('button',{class:'btn btn-gold',onclick:function(){ activatePremium(); root.innerHTML=''; }},['Simulate Upgrade'])
+    ])
+  ]);
+  overlay.appendChild(m);
+  root.appendChild(overlay);
+}
+function activatePremium(){
+  state.isPremium=true; saveSession();
+  document.getElementById('plan-pill').textContent='PREMIUM';
+  document.getElementById('plan-pill').className='plan-pill premium';
+  var tb=document.getElementById('topbar-upgrade');
+  if(tb){ tb.textContent='Premium Active'; tb.disabled=true; tb.style.opacity='.7'; tb.style.cursor='default'; }
+  toast('gold','Premium activated (demo). All features unlocked.');
+  log('successful','Premium plan activated (simulated).');
+  ['game-library','optimizer','premium','pc-scan'].forEach(function(r){
+    if(document.getElementById('page-'+r).classList.contains('active')) go(r);
+  });
+}
+
+/* ========================================================================
+   NAV / ROUTING
+   ======================================================================== */
+var PAGES = [
+  ['dashboard','⌂','Dashboard'],['pc-scan','▣','My PC'],['game-library','▤','Game Library'],
+  ['optimizer','⚙','Optimizer'],['restore','↺','Restore Center'],['logs','≡','Activity Log'],
+  ['premium','♛','Premium'],['settings','✦','Settings'],['about','?','About']
+];
+function buildNav(){
+  var nav=document.getElementById('nav');
+  PAGES.forEach(function(p){
+    var btn = el('button',{},[el('span',{},[p[1]+' ']), el('span',{},[p[2]])]);
+    btn.dataset.route=p[0];
+    if(p[0]==='premium') btn.classList.add('premium-link');
+    btn.addEventListener('click',function(){ go(p[0]); });
+    nav.appendChild(el('li',{},[btn]));
+  });
+}
+function go(route){
+  state.route=route;
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('page-'+route).classList.add('active');
+  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('active',b.dataset.route===route);});
+  if(route==='restore') renderRestore();
+  if(route==='logs') renderLogs();
+  if(route==='game-library') renderGameLibrary();
+  if(route==='optimizer') renderOptimizer();
+  if(route==='pc-scan') renderPcInfo();
+  if(route==='premium') renderPremiumPage();
+  if(route==='settings') renderSettings();
+}
+function actionBtn(label,fn,gold){ return el('button',{class:'action-btn'+(gold?' gold-outline':''),onclick:fn},[label]); }
+
+/* ========================================================================
+   PAGES
+   ======================================================================== */
+function buildPages(){
+  var main=document.getElementById('main');
+  var dash=el('div',{class:'page',id:'page-dashboard'},[
+    el('section',{class:'card'},[
+      el('div',{class:'page-header'},[el('h2',{},['PC PERFORMANCE']),el('span',{class:'badge'},['Optimization Readiness Score'])]),
+      el('div',{id:'readiness-body'},[el('p',{class:'empty'},['Run a scan to calculate your Optimization Readiness Score.'])])
+    ]),
+    el('section',{class:'actions-grid'},[
+      actionBtn('Scan PC',function(){ runScan(); }),
+      actionBtn('Detect Games',function(){ go('game-library'); }),
+      actionBtn('Optimize PC',function(){ go('optimizer'); }),
+      actionBtn('Restore Center',function(){ go('restore'); }),
+      actionBtn('♛ Go Premium',function(){ go('premium'); },true)
+    ]),
+    el('section',{class:'card'},[el('h3',{},['Selected Game']), el('div',{id:'dash-game-summary'})])
+  ]);
+  var pc=el('div',{class:'page',id:'page-pc-scan'},[
+    el('div',{class:'page-header'},[el('h2',{},['My PC']),el('button',{class:'btn btn-primary',onclick:function(){runScan();}},['Rescan'])]),
+    el('section',{class:'card'},[el('h3',{},['Live Resource Usage']),el('div',{id:'usage-bars'})]),
+    el('section',{class:'card'},[el('h3',{},['Resource Overview']),el('div',{id:'usage-chart'})]),
+    el('div',{class:'pc-grid',id:'pc-grid'}),
+    el('section',{class:'card',id:'scan-stage-panel'},[el('p',{class:'muted'},['Run a scan to see the live detection stages.'])])
+  ]);
+  var lib=el('div',{class:'page',id:'page-game-library'},[
+    el('div',{class:'page-header'},[el('h2',{},['Select Game'])]),
+    el('section',{class:'card'},[el('h3',{},['All Supported Games']),el('div',{class:'game-grid',id:'game-grid'})])
+  ]);
+  var opt=el('div',{class:'page',id:'page-optimizer'},[
+    el('div',{class:'page-header'},[el('h2',{id:'opt-title'},['Optimize PC'])]),
+    el('section',{class:'card'},[el('h3',{},['Optimization Mode']),el('div',{class:'mode-grid',id:'mode-grid'})]),
+    el('section',{class:'card'},[el('div',{class:'page-header'},[el('h3',{},['Optimizations'])]),el('div',{id:'opt-list'})])
+  ]);
+  var restore=el('div',{class:'page',id:'page-restore'},[
+    el('div',{class:'page-header'},[el('h2',{},['Restore Center'])]),
+    el('section',{class:'card'},[el('h3',{},['Optimization Runs']),el('div',{id:'restore-list'})])
+  ]);
+  var logs=el('div',{class:'page',id:'page-logs'},[
+    el('div',{class:'page-header'},[el('h2',{},['Activity Log'])]),
+    el('section',{class:'card'},[el('div',{id:'log-list'})])
+  ]);
+  var premium=el('div',{class:'page',id:'page-premium'},[
+    el('div',{class:'page-header'},[el('h2',{},['NexVOLT ',el('span',{class:'goldtext'},['Premium'])])]),
+    el('section',{class:'card',id:'plan-cards'})
+  ]);
+  var settings=el('div',{class:'page',id:'page-settings'},[
+    el('div',{class:'page-header'},[el('h2',{},['Settings'])]),
+    el('section',{class:'card'},[el('h3',{},['Account']),el('div',{id:'settings-account'})]),
+    el('section',{class:'card'},[el('h3',{},['Optimization Presets']),el('div',{id:'settings-presets'})]),
+    el('section',{class:'card'},[el('h3',{},['Optimization']),el('label',{class:'toggle-row',id:'toggle-confirm'},[])]),
+    el('section',{class:'card'},[el('h3',{},['Privacy']),el('label',{class:'toggle-row',id:'toggle-telemetry'},[])]),
+    el('section',{class:'card'},[el('h3',{},['Session']),
+      el('p',{class:'muted'},['End your current session on this device.']),
+      el('button',{class:'btn btn-danger',onclick:function(){ if(confirm('Log out of NexVOLT?')) doLogout(); }},['Log Out'])
+    ])
+  ]);
+  var about=el('div',{class:'page',id:'page-about'},[
+    el('div',{class:'page-header'},[el('h2',{},['About'])]),
+    el('section',{class:'card'},[
+      el('h3',{},['NexVOLT']),
+      el('p',{},['Optimize. Boost. Play.']),
+      el('p',{class:'muted'},['A single standalone HTML file — markup, styles, and logic all in one file, no build step.']),
+      el('h4',{},['Accounts']),
+      el('p',{},['Anyone can create their own account via Register. Password reset uses a generated code shown on-screen (simulated email) since a standalone file cannot send real email.']),
+      el('h4',{},['Browser fallback mode']),
+      el('p',{},['All hardware data, game detection, system changes, password reset email delivery, and the Premium checkout.'])
+    ])
+  ]);
+  [dash,pc,lib,opt,restore,logs,premium,settings,about].forEach(function(p){ main.appendChild(p); });
+  dash.classList.add('active');
+}
+
+/* ========================================================================
+   SETTINGS
+   ======================================================================== */
+function toggleRow(container, key, label, hint){
+  clear(container);
+  container.appendChild(el('input',{type:'checkbox', ...(state.settings[key]?{checked:'checked'}:{}),
+    onchange:function(e){ state.settings[key]=e.target.checked; saveSession(); toast('info','Setting saved.'); }}));
+  container.appendChild(el('span',{},[el('strong',{},[label]), hint?el('p',{class:'muted'},[hint]):null]));
+}
+function renderSettings(){
+  if(!state.user) return;
+  var acc=document.getElementById('settings-account');
+  clear(acc);
+  acc.appendChild(el('div',{class:'account-row'},[
+    el('div',{class:'account-avatar'},[initialsOf(state.user.name)]),
+    el('div',{},[el('strong',{},[state.user.name]), el('p',{class:'muted'},['@'+state.user.username+' · Member since '+state.user.memberSince])])
+  ]));
+  acc.appendChild(el('div',{class:'field-row'},[
+    el('div',{},[el('label',{},['Display name']), el('input',{type:'text',id:'set-name',value:state.user.name})]),
+    el('div',{},[el('label',{},['Email']), el('input',{type:'email',id:'set-email',value:state.user.email})])
+  ]));
+  acc.appendChild(el('button',{class:'btn btn-primary',onclick:function(){
+    var n=document.getElementById('set-name').value.trim();
+    var em=document.getElementById('set-email').value.trim();
+    if(!n){ toast('err','Name cannot be empty.'); return; }
+    state.user.name=n; state.user.email=em; saveSession(); syncAccountUI();
+    toast('success','Profile updated.');
+  }},['Save Changes']));
+
+  var presetsBox=document.getElementById('settings-presets');
+  clear(presetsBox);
+  presetsBox.appendChild(el('p',{class:'muted'},['Save your current Optimization Mode + selected game as a reusable preset.']));
+  presetsBox.appendChild(el('div',{class:'field-row'},[
+    el('div',{},[el('label',{},['Preset name']), el('input',{type:'text',id:'preset-name',placeholder:'e.g. Competitive FPS'})])
+  ]));
+  presetsBox.appendChild(el('button',{class:'btn btn-primary',onclick:function(){
+    var name=document.getElementById('preset-name').value.trim();
+    if(!name){ toast('err','Enter a preset name.'); return; }
+    state.presets.push({id:'preset-'+Date.now(), name:name, mode:state.mode, game:state.selectedGame});
+    saveSession();
+    document.getElementById('preset-name').value='';
+    renderSettings();
+    toast('success','Preset "'+name+'" saved.');
+  }},['Save Current as Preset']));
+  var list=el('div',{style:'margin-top:1rem'});
+  if(!state.presets.length){
+    list.appendChild(el('p',{class:'empty'},['No presets saved yet.']));
+  } else {
+    state.presets.forEach(function(p){
+      var gameName = p.game ? (GAMES.find(function(g){return g.id===p.game;})||{}).name : 'PC-wide';
+      list.appendChild(el('div',{class:'preset-row'},[
+        el('span',{},[el('strong',{},[p.name]), el('br'), el('span',{class:'muted',style:'font-size:.78rem'},[p.mode+' mode · '+gameName])]),
+        el('div',{class:'preset-actions'},[
+          el('button',{class:'btn',onclick:function(){ state.mode=p.mode; state.selectedGame=p.game; toast('success','Preset "'+p.name+'" applied.'); go('optimizer'); }},['Apply']),
+          el('button',{class:'btn btn-danger',onclick:function(){ state.presets=state.presets.filter(function(x){return x.id!==p.id;}); saveSession(); renderSettings(); }},['Delete'])
+        ])
+      ]));
+    });
+  }
+  presetsBox.appendChild(list);
+
+  toggleRow(document.getElementById('toggle-confirm'),'confirmBeforeApply','Require confirmation before applying optimizations','Strongly recommended — leave this on.');
+  toggleRow(document.getElementById('toggle-telemetry'),'telemetry','Send anonymous usage telemetry','Off by default. This standalone file sends no data anywhere regardless of this toggle.');
+}
+
+/* ========================================================================
+   PRICING PAGE
+   ======================================================================== */
+function planCard(key){
+  var plan=PLANS[key];
+  var isPremiumCard = key==='premium';
+  return el('div',{class:'plan-card'+(isPremiumCard?' featured':'')},[
+    el('div',{class:'plan-name'},[ el('h3',{},[isPremiumCard?'Premium':'Free']), isPremiumCard?el('span',{class:'badge badge-gold'},['Most Popular']):null ]),
+    el('div',{class:'plan-price'},[ el('b',{},['$'+plan.price]), el('span',{},['/month']) ]),
+    el('ul',{class:'plan-features'}, plan.features.map(function(f){
+      return el('li',{},[ f[1]?el('span',{class:'check'},['✓']):el('span',{class:'checkx'},['✕']), el('span',{html:f[1]?f[0]:'<s style="opacity:.6">'+f[0]+'</s>'}) ]);
+    })),
+    isPremiumCard
+      ? el('button',{class:'btn btn-gold',onclick:function(){ state.isPremium? toast('info','Already on Premium.') : showUpgradeModal('Unlock every optimization mode, the full game library, and full history.'); }},[state.isPremium?'Current Plan':'Upgrade — $25/mo'])
+      : el('button',{class:'btn',onclick:function(){ toast('info','You are already on the Free plan.'); }},[state.isPremium?'Downgrade':'Current Plan'])
+  ]);
+}
+function renderPremiumPage(){
+  var box=document.getElementById('plan-cards');
+  clear(box);
+  box.appendChild(el('p',{class:'muted'},['Free covers everyday safe optimization. Premium unlocks the higher-risk tuning modes, the full 13-game library, and full history.']));
+  box.appendChild(el('div',{class:'plan-grid'},[planCard('free'),planCard('premium')]));
+}
+
+/* ========================================================================
+   DASHBOARD / SCAN / USAGE / GAMES / OPTIMIZER (unchanged logic)
+   ======================================================================== */
+function renderReadiness(score,breakdown){
+  var body=document.getElementById('readiness-body');
+  clear(body);
+  var wrap = el('div',{class:'donut-wrap'},[ donut(score), el('div',{style:'flex:1;min-width:220px'},[]) ]);
+  var barsBox = wrap.children[1];
+  breakdown.forEach(function(row){ barsBox.appendChild(progressBar(row[0], row[1])); });
+  body.appendChild(wrap);
+  body.appendChild(el('p',{class:'fineprint'},['Heuristic Optimization Readiness Score, not a benchmark result.']));
+  renderDashGameSummary();
+}
+function renderDashGameSummary(){
+  var box=document.getElementById('dash-game-summary');
+  if(!box) return;
+  clear(box);
+  if(!state.selectedGame){
+    box.appendChild(el('div',{class:'empty'},['No game selected. ',el('br'), el('button',{class:'btn',onclick:function(){go('game-library');}},['Select a game'])]));
+    return;
+  }
+  var g=GAMES.find(function(x){return x.id===state.selectedGame;});
+  box.appendChild(el('div',{},[el('strong',{},[g.name]),el('p',{class:'muted'},['Executable: '+g.exe]),
+    el('button',{class:'btn',onclick:function(){go('optimizer');}},['Go to optimizer'])]));
+}
+var SCAN_STAGES = ['Hardware Detection','Windows Configuration Scan','Game Detection','Background Process Analysis',
+  'Power Configuration','Graphics Configuration','Network Configuration','Storage Analysis','Recommendation Generation'];
+function runScan(){
+  toast('info','Scanning…');
+  var panel=document.getElementById('scan-stage-panel');
+  if(panel){
+    clear(panel);
+    panel.appendChild(el('h3',{},['Optimization Scanner']));
+    var list=el('ul',{class:'stage-list'});
+    SCAN_STAGES.forEach(function(s){ list.appendChild(el('li',{class:'stage'},['○ '+s])); });
+    panel.appendChild(list);
+  }
+  var i=0;
+  function step(){
+    if(panel){
+      var items=panel.querySelectorAll('.stage');
+      if(i>0){ items[i-1].classList.remove('run'); items[i-1].classList.add('done'); items[i-1].textContent='✓ '+SCAN_STAGES[i-1]; }
+      if(i<SCAN_STAGES.length){ items[i].classList.add('run'); items[i].textContent='… '+SCAN_STAGES[i]; i++; setTimeout(step,220); }
+      else { finishScan(); }
+    } else { finishScan(); }
+  }
+  step();
+}
+function finishScan(){
+  var ramScore = Math.round((1 - HARDWARE.ram.usedGB/HARDWARE.ram.totalGB)*100);
+  var cpuScore = Math.round((HARDWARE.cpu.threads/16)*100);
+  var gpuScore = Math.round((HARDWARE.gpu.vramGB/12)*100);
+  var winScore = Math.round(((HARDWARE.win.gameMode?1:0)+(HARDWARE.win.hags?1:0)+1)/3*100);
+  var overall = Math.round((ramScore+cpuScore+gpuScore+winScore)/4);
+  renderReadiness(overall,[['CPU Capability',cpuScore],['GPU Capability',gpuScore],['RAM Headroom',ramScore],['Windows Configuration',winScore]]);
+  renderPcInfo();
+  log('info','PC scan completed.');
+  toast('success','Scan complete.');
+}
+function renderPcInfo(){
+  var bars=document.getElementById('usage-bars');
+  if(bars){
+    clear(bars);
+    bars.appendChild(progressBar('CPU Usage', HARDWARE.cpu.usagePct));
+    bars.appendChild(progressBar('GPU Usage', HARDWARE.gpu.usagePct));
+    bars.appendChild(progressBar('RAM Used', Math.round(HARDWARE.ram.usedGB/HARDWARE.ram.totalGB*100), HARDWARE.ram.usedGB+' / '+HARDWARE.ram.totalGB+' GB'));
+    bars.appendChild(progressBar('VRAM Used', Math.round(HARDWARE.gpu.vramUsedGB/HARDWARE.gpu.vramGB*100), HARDWARE.gpu.vramUsedGB+' / '+HARDWARE.gpu.vramGB+' GB'));
+    HARDWARE.storage.forEach(function(d){
+      var usedPct = Math.round((1-d.freeGB/d.totalGB)*100);
+      bars.appendChild(progressBar('Storage '+d.drive+' Used', usedPct, (d.totalGB-d.freeGB)+' / '+d.totalGB+' GB'));
+    });
+  }
+  var chartBox=document.getElementById('usage-chart');
+  if(chartBox){
+    clear(chartBox);
+    if(!state.isPremium){
+      chartBox.appendChild(el('div',{class:'empty'},[crownIcon(),' Full resource comparison chart is a Premium feature. ',
+        el('button',{class:'btn btn-gold',style:'margin-left:.5rem',onclick:function(){ showUpgradeModal('Unlock the full resource comparison chart.'); }},['Upgrade'])]));
+    } else {
+      chartBox.appendChild(barChart([
+        {label:'CPU',val:HARDWARE.cpu.usagePct},{label:'GPU',val:HARDWARE.gpu.usagePct},
+        {label:'RAM',val:Math.round(HARDWARE.ram.usedGB/HARDWARE.ram.totalGB*100)},
+        {label:'VRAM',val:Math.round(HARDWARE.gpu.vramUsedGB/HARDWARE.gpu.vramGB*100)},
+        {label:'Disk C:',val:Math.round((1-HARDWARE.storage[0].freeGB/HARDWARE.storage[0].totalGB)*100)}
+      ]));
+    }
+  }
+  var grid=document.getElementById('pc-grid');
+  if(!grid) return;
+  clear(grid);
+  function card(title,rows){
+    var dl=el('dl');
+    rows.forEach(function(r){ dl.appendChild(el('dt',{},[r[0]])); dl.appendChild(el('dd',{},[String(r[1])])); });
+    return el('div',{class:'info-card'},[el('h3',{},[title]),dl]);
+  }
+  grid.appendChild(card('CPU',[['Name',HARDWARE.cpu.name],['Cores',HARDWARE.cpu.cores],['Threads',HARDWARE.cpu.threads]]));
+  grid.appendChild(card('GPU',[['Name',HARDWARE.gpu.name],['VRAM',HARDWARE.gpu.vramGB+' GB']]));
+  grid.appendChild(card('RAM',[['Total',HARDWARE.ram.totalGB+' GB'],['Used',HARDWARE.ram.usedGB+' GB']]));
+  HARDWARE.storage.forEach(function(d){ grid.appendChild(card('Storage '+d.drive,[['Type',d.type],['Free / Total',d.freeGB+' GB / '+d.totalGB+' GB']])); });
+  grid.appendChild(card('Windows',[['Version',HARDWARE.os.version],['Build',HARDWARE.os.build]]));
+  grid.appendChild(card('Gaming Features',[['Game Mode',HARDWARE.win.gameMode?'Enabled':'Disabled'],['HAGS',HARDWARE.win.hags?'Enabled':'Disabled'],['Power Plan',HARDWARE.win.powerPlan]]));
+}
+function renderGameLibrary(){
+  var grid=document.getElementById('game-grid');
+  clear(grid);
+  GAMES.forEach(function(g,idx){
+    var sel = state.selectedGame===g.id;
+    var locked = !state.isPremium && idx>=FREE_GAME_LIMIT;
+    grid.appendChild(el('div',{class:'game-card'+(sel?' sel':'')+(locked?' locked':'')},[
+      el('div',{class:'game-head'},[ gameLogo(g), el('strong',{},[g.name]) ]),
+      el('p',{class:'muted'},['Executable: '+g.exe]),
+      locked ? el('span',{class:'badge badge-gold'},[crownIcon(),'Premium']) : el('span',{class:'badge'+(sel?' badge-good':'')},[sel?'✓ Selected':'Free tier']),
+      locked
+        ? el('button',{class:'btn btn-gold',onclick:function(){ showUpgradeModal('Unlock all 13 games, including '+g.name+'.'); }},['Unlock with Premium'])
+        : el('button',{class:'btn btn-primary',onclick:function(){ state.selectedGame=g.id; toast('success',g.name+' selected.'); go('optimizer'); }},['Select & Optimize'])
+    ]));
+  });
+}
+var MODES=[
+  ['safe','Safe','Only low-risk, fully reversible optimizations.',false],
+  ['balanced','Balanced','Recommended general gaming optimization.',false],
+  ['performance','Performance','More aggressive changes with clear warnings.',true],
+  ['custom','Custom','Choose individual optimizations yourself.',true]
+];
+function currentPlan(){
+  var plan = PC_CATALOG.filter(function(o){ return state.mode==='custom' || o.modes.indexOf(state.mode)>-1; });
+  if(state.selectedGame){
+    var g=GAMES.find(function(x){return x.id===state.selectedGame;});
+    var extra=gameExtraOpt(g);
+    if(state.mode==='custom' || extra.modes.indexOf(state.mode)>-1) plan=plan.concat([extra]);
+  }
+  return plan;
+}
+function renderOptimizer(){
+  document.getElementById('opt-title').textContent = state.selectedGame
+    ? 'Optimize: '+GAMES.find(function(x){return x.id===state.selectedGame;}).name
+    : 'Optimize PC';
+  var modeGrid=document.getElementById('mode-grid');
+  clear(modeGrid);
+  MODES.forEach(function(m){
+    var sel = state.mode===m[0];
+    var premiumOnly = m[3] && !state.isPremium;
+    modeGrid.appendChild(el('button',{class:'mode-card'+(sel?' sel':'')+(premiumOnly?' locked':''),onclick:function(){
+      if(premiumOnly){ showUpgradeModal('The "'+m[1]+'" optimization mode is a Premium feature.'); return; }
+      state.mode=m[0]; renderOptimizer();
+    }},[ el('strong',{},[premiumOnly?crownIcon():null, m[1]]), el('p',{},[m[2]]) ]));
+  });
+  var listEl=document.getElementById('opt-list');
+  clear(listEl);
+  var plan=currentPlan();
+  if(!plan.length){ listEl.appendChild(el('p',{class:'empty'},['No optimizations for this selection.'])); return; }
+  plan.forEach(function(op){
+    listEl.appendChild(el('div',{class:'opt-row',id:'row-'+op.id},[
+      el('div',{},[ el('strong',{},[op.name]),
+        el('div',{class:'opt-meta'},[ el('span',{class:'badge'},[op.cat]), el('span',{class:'badge'},[op.risk+' risk']),
+          op.admin?el('span',{class:'badge badge-warn'},['Admin required']):null ]) ]),
+      el('span',{class:'opt-state',id:'state-'+op.id},['Available'])
+    ]));
+  });
+  listEl.appendChild(el('div',{style:'text-align:right;padding-top:.8rem'},[
+    el('button',{class:'btn btn-primary',onclick:function(){ applyPlan(plan); }},['Apply Selected'])
+  ]));
+}
+function applyPlan(plan){
+  if(state.settings.confirmBeforeApply && !confirm(plan.length+' change(s) will be attempted. A backup record will be created first. Continue?')) return;
+  var backup={id:'backup-'+Date.now(), time:fmtTime(), game:state.selectedGame, count:plan.length};
+  state.backups.unshift(backup);
+  log('info','Backup created ('+plan.length+' item(s)).');
+  var i=0;
+  function step(){
+    if(i>=plan.length){ toast('warn','0 applied — Administrator + native app required for real changes.'); return; }
+    var op=plan[i];
+    var stateEl=document.getElementById('state-'+op.id);
+    if(stateEl) stateEl.textContent='Applying…';
+    setTimeout(function(){
+      if(stateEl){ stateEl.textContent='Requires Administrator'; stateEl.style.color='var(--warn)'; }
+      log('skipped', op.name+': requires the native Windows app + Administrator rights. No change made.');
+      i++; step();
+    },260);
+  }
+  step();
+}
+function renderRestore(){
+  var list=document.getElementById('restore-list');
+  clear(list);
+  if(!state.backups.length){ list.appendChild(el('p',{class:'empty'},['No optimization runs yet.'])); return; }
+  var visible = state.isPremium ? state.backups : state.backups.slice(0,1);
+  visible.forEach(function(b){
+    list.appendChild(el('div',{class:'opt-row'},[
+      el('span',{},[(b.game?GAMES.find(function(g){return g.id===b.game;}).name:'PC')+' · '+b.time+' · '+b.count+' change(s)']),
+      el('button',{class:'btn',onclick:function(){ log('restored','Restore requested for '+b.id+'.'); toast('info','Restore recorded.'); }},['Restore'])
+    ]));
+  });
+  if(!state.isPremium && state.backups.length>1){
+    list.appendChild(el('div',{class:'empty'},[crownIcon(),' '+(state.backups.length-1)+' more run(s) hidden. ',
+      el('button',{class:'btn btn-gold',style:'margin-left:.5rem',onclick:function(){ showUpgradeModal('Unlock unlimited restore history.'); }},['Upgrade'])]));
+  }
+}
+function renderLogs(){
+  var list=document.getElementById('log-list');
+  clear(list);
+  if(!state.logs.length){ list.appendChild(el('p',{class:'empty'},['No activity recorded yet.'])); return; }
+  var cap = state.isPremium ? state.logs.length : 20;
+  state.logs.slice(0,cap).forEach(function(e){
+    list.appendChild(el('div',{class:'log-row '+e.result},[
+      el('span',{class:'time'},[e.time]), el('span',{class:'r'},[e.result]), el('span',{},[e.message])
+    ]));
+  });
+  if(!state.isPremium && state.logs.length>20){
+    list.appendChild(el('div',{class:'empty'},[crownIcon(),' Older entries hidden beyond 20.']));
+  }
+}
+
+/* ========================================================================
+   NATIVE WINDOWS BRIDGE
+   ======================================================================== */
+var NEXVOLT_NATIVE = (window.nexvolt && window.nexvolt.isNative) ? window.nexvolt : null;
+
+async function loadNativeSystemInfo(){
+  if(!NEXVOLT_NATIVE) return false;
+  try{
+    var info=await NEXVOLT_NATIVE.getSystemInfo();
+    if(info){ HARDWARE=info; renderPcInfo(); renderDashGameSummary(); }
+    return true;
+  }catch(e){
+    log('failed','Native Windows detection failed: '+e.message);
+    toast('err','Could not read Windows system information.');
+    return false;
+  }
+}
+
+async function loadNativeGames(){
+  if(!NEXVOLT_NATIVE) return {};
+  try{
+    var found=await NEXVOLT_NATIVE.detectGames();
+    GAMES.forEach(function(g){ g.detected=!!(found && found[g.id]); g.path=found && found[g.id] ? found[g.id] : null; });
+    renderGameLibrary();
+    return found || {};
+  }catch(e){
+    log('failed','Game detection failed: '+e.message);
+    return {};
+  }
+}
+
+if(NEXVOLT_NATIVE){
+  var _demoRunScan=runScan;
+  runScan=async function(){
+    await loadNativeSystemInfo();
+    await loadNativeGames();
+    _demoRunScan();
+  };
+
+  var _demoApplyPlan=applyPlan;
+  applyPlan=async function(plan){
+    if(state.settings.confirmBeforeApply && !confirm(plan.length+' change(s) will be attempted using the native Windows optimizer. A backup record will be created where the operation supports restoration. Continue?')) return;
+    var batch={id:'backup-'+Date.now(),time:fmtTime(),game:state.selectedGame,count:plan.length,nativeBackupIds:[],results:[]};
+    state.backups.unshift(batch);
+    saveSession();
+    log('info','Native optimization run started ('+plan.length+' item(s)).');
+    for(var i=0;i<plan.length;i++){
+      var op=plan[i], stateEl=document.getElementById('state-'+op.id);
+      if(stateEl){ stateEl.textContent='Applying…'; stateEl.style.color=''; }
+      try{
+        var g=state.selectedGame?GAMES.find(function(x){return x.id===state.selectedGame;}):null;
+        var result=await NEXVOLT_NATIVE.applyOperation(op.id,{backupId:batch.id+'-'+op.id,exe:g&&g.exe,gamePath:g&&g.path});
+        batch.nativeBackupIds.push(result.backupId);
+        batch.results.push({id:op.id,ok:true,message:result.message});
+        if(stateEl){ stateEl.textContent='Applied'; stateEl.style.color='var(--good)'; }
+        log('successful',op.name+': '+result.message);
+      }catch(e){
+        batch.results.push({id:op.id,ok:false,message:e.message});
+        if(stateEl){ stateEl.textContent='Failed'; stateEl.style.color='var(--bad)'; }
+        log('failed',op.name+': '+e.message);
+      }
+    }
+    saveSession();
+    renderRestore();
+    toast('success','Native optimization run completed.');
+  };
+
+  var _demoRenderRestore=renderRestore;
+  renderRestore=function(){
+    _demoRenderRestore();
+    var buttons=document.querySelectorAll('#restore-list .opt-row .btn');
+    state.backups.forEach(function(b,idx){
+      if(buttons[idx] && b.nativeBackupIds && b.nativeBackupIds.length){
+        buttons[idx].onclick=async function(){
+          if(!confirm('Restore the supported changes from this optimization run?')) return;
+          var ok=0,fail=0;
+          for(var j=0;j<b.nativeBackupIds.length;j++){
+            try{ await NEXVOLT_NATIVE.restoreBackup(b.nativeBackupIds[j]); ok++; }
+            catch(e){ fail++; log('failed','Restore failed: '+e.message); }
+          }
+          if(ok) log('restored','Restored '+ok+' native operation(s).');
+          toast(fail?'warn':'success',fail?'Restore completed with '+fail+' error(s).':'Restore completed.');
+          await loadNativeSystemInfo();
+          renderRestore();
+        };
+      }
+    });
+  };
+
+}
+
+/* ========================================================================
+   BOOT
+   ======================================================================== */
+buildNav();
+buildPages();
+(function boot(){
+  var session = loadSession();
+  if(session && session.username){
+    var users=loadUsers();
+    if(users[session.username]){
+      state.isPremium=!!session.isPremium;
+      state.settings=session.settings||state.settings; state.presets=session.presets||[];
+      var rec=users[session.username];
+      state.user={ username:session.username, name:rec.name, email:rec.email, memberSince:rec.memberSince };
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='flex';
+      syncAccountUI();
+      if(state.isPremium){
+        document.getElementById('plan-pill').textContent='PREMIUM';
+        document.getElementById('plan-pill').className='plan-pill premium';
+        var tb=document.getElementById('topbar-upgrade');
+        tb.textContent='Premium Active'; tb.disabled=true; tb.style.opacity='.7'; tb.style.cursor='default';
+      }
+    }
+  }
+})();
+go('dashboard');
+renderGameLibrary();
+renderDashGameSummary();
+renderPcInfo();
+if(NEXVOLT_NATIVE){ loadNativeSystemInfo(); loadNativeGames(); }
+</script>
+</body>
+</html>

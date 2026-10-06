@@ -1,0 +1,60 @@
+{
+  "name": "nexvolt",
+  "version": "1.0.0",
+  "description": "NexVOLT — Windows FPS Booster & PC Optimization Utility",
+  "main": "main.js",
+  "author": "NexVOLT",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64 --publish never",
+    "dist:portable": "electron-builder --win portable --x64 --publish never",
+    "dist:installer": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.nexvolt.optimizer",
+    "productName": "NexVOLT",
+    "artifactName": "NexVOLT-${version}-${arch}.${ext}",
+    "asar": true,
+    "compression": "maximum",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "styles.css",
+      "script.js",
+      "logos/**/*",
+      "build/**/*"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icon.ico",
+      "requestedExecutionLevel": "requireAdministrator",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NexVOLT"
+    },
+    "portable": {
+      "artifactName": "NexVOLT-${version}-portable.${ext}"
+    }
+  }
+}
